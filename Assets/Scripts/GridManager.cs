@@ -38,16 +38,27 @@ public class GridManager : MonoBehaviour {
     }
 
 
-      public bool IsValidMove(Vector2 playerPosition) {
+      public ValidMove IsValidMove(Vector2 playerPosition) {
             if (playerPosition.x < 0 ||
                 playerPosition.x > width -1 || 
                 playerPosition.y < 0 ||
                 playerPosition.y > height-1)
             {
-                return false;
+                return ValidMove.InvalidOutOfBoundries;
             }
 
-            return true;
+
+            if (IsTileInProgress(playerPosition)){
+                return ValidMove.InvalidBlueInProgress;
+            }
+
+
+            if (IsCompletedMove(playerPosition)){
+                HandleCloseArea();
+                return ValidMove.ValidStepCompleted;
+            }
+
+            return ValidMove.Valid;
       }
 
       public void SetTileInProgress(Vector2 currentPlayerPosition){
@@ -60,6 +71,10 @@ public class GridManager : MonoBehaviour {
       public bool IsTileInProgress(Vector2 currentPlayerPosition){
         return tiles[currentPlayerPosition].inProgress;
       }
+      public bool IsCompletedMove(Vector2 currentPlayerPosition){
+        Tile tile = tiles[currentPlayerPosition];
+        return !tile.inProgress && tile.isBlue;
+      }
 
       public void RestartInProgresBoard(){
         foreach (KeyValuePair<Vector2, Tile> item in tiles)
@@ -70,5 +85,10 @@ public class GridManager : MonoBehaviour {
                 tile.SetColor(false,false);
             }
         }
+    }
+
+
+    private void HandleCloseArea(){
+        
     }
 }

@@ -47,18 +47,35 @@ public class Pacman : MonoBehaviour {
   private IEnumerator Move(Vector2 direction) {
     Vector2 startPosition = transform.position;
     Vector2 endPosition = startPosition + (direction * gridSize);
-    while (!gridManager.IsValidMove(endPosition))
+    
+    ValidMove isValidMove = gridManager.IsValidMove(endPosition);
+    
+    if (isValidMove == ValidMove.InvalidOutOfBoundries)
     {
       yield break;  
+    }
+
+    if (isValidMove == ValidMove.InvalidBlueInProgress)
+    {
+      lifeCount--;
+      if (lifeCount == 0){
+        // handleGameOver();
+        yield break;
+      }
+      else 
+      {
+        // Set player to 0,0
+        handleRestart(); 
+        startPosition = transform.position;
+        endPosition = transform.position;
+        // yield return null;
+      }
     }
 
     // Record that we're moving so we don't accept more input.
     isMoving = true;
 
     
-
-
-
     // Smoothly move in the desired direction taking the required time.
     float elapsedTime = 0;
     while (elapsedTime < moveDuration) {
@@ -71,26 +88,10 @@ public class Pacman : MonoBehaviour {
     // Make sure we end up exactly where we want.
     transform.position = endPosition;
 
-    // Change the current grid color
-    if (gridManager.IsTileInProgress(endPosition)){
-      // GameOver
-      lifeCount--;
-      if (lifeCount == 0){
-        // handleGameOver();
-        yield break;
-      }
-      else 
-      {
-        // Set player to 0,0
-        handleRestart();
-        
-      }
-      
-    }else{
-      gridManager.SetTileInProgress(endPosition);
-    }
-    
+    // Change the current grid color    
+    gridManager.SetTileInProgress(endPosition);
 
+  
     // We're no longer moving so we can accept another move input.
     isMoving = false;
 
@@ -103,7 +104,7 @@ public class Pacman : MonoBehaviour {
   }
 
   private void handleMovementEnd(){
-    
+
   }
 
 }
