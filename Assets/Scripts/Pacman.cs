@@ -11,6 +11,7 @@ public class Pacman : MonoBehaviour {
   [SerializeField] private float gridSize = 1f;
 
   private bool isMoving = false;
+  private int lifeCount = 3;
 
   private void Start(){
     gridManager = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
@@ -50,10 +51,12 @@ public class Pacman : MonoBehaviour {
     {
       yield break;  
     }
+
     // Record that we're moving so we don't accept more input.
     isMoving = true;
 
-    // Make a note of where we are and where we are going.
+    
+
 
 
     // Smoothly move in the desired direction taking the required time.
@@ -68,11 +71,39 @@ public class Pacman : MonoBehaviour {
     // Make sure we end up exactly where we want.
     transform.position = endPosition;
 
+    // Change the current grid color
+    if (gridManager.IsTileInProgress(endPosition)){
+      // GameOver
+      lifeCount--;
+      if (lifeCount == 0){
+        // handleGameOver();
+        yield break;
+      }
+      else 
+      {
+        // Set player to 0,0
+        handleRestart();
+        
+      }
+      
+    }else{
+      gridManager.SetTileInProgress(endPosition);
+    }
+    
+
     // We're no longer moving so we can accept another move input.
     isMoving = false;
+
+    handleMovementEnd();
   }
 
+  private void handleRestart(){
+    transform.position = new Vector2(0,0);
+    gridManager.RestartInProgresBoard();
+  }
 
+  private void handleMovementEnd(){
+    
+  }
 
-  
 }

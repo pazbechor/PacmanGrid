@@ -26,4 +26,16 @@ public class Tile : MonoBehaviour {
         }
     }
 
+
+    public void SetColor(bool setBlue, bool isInProgress){
+        inProgress = isInProgress;
+        isBlue = setBlue;
+        if(isBlue){
+            m_SpriteRenderer.sprite = blue;
+        } else{
+            m_SpriteRenderer.sprite = green;
+        }
+
+    }
+
 }

@@ -50,4 +50,25 @@ public class GridManager : MonoBehaviour {
             return true;
       }
 
+      public void SetTileInProgress(Vector2 currentPlayerPosition){
+        Tile tile = tiles[currentPlayerPosition];
+        if (!tile.isBlue){
+            tile.SetColor(true, true);
+        }
+      }
+
+      public bool IsTileInProgress(Vector2 currentPlayerPosition){
+        return tiles[currentPlayerPosition].inProgress;
+      }
+
+      public void RestartInProgresBoard(){
+        foreach (KeyValuePair<Vector2, Tile> item in tiles)
+        {
+            Vector2 key = item.Key;
+            Tile tile = item.Value;
+            if (tile.inProgress){
+                tile.SetColor(false,false);
+            }
+        }
+    }
 }
