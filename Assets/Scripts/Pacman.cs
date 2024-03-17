@@ -48,7 +48,7 @@ public class Pacman : MonoBehaviour {
     Vector2 startPosition = transform.position;
     Vector2 endPosition = startPosition + (direction * gridSize);
     
-    ValidMove isValidMove = gridManager.IsValidMove(endPosition);
+    ValidMove isValidMove = gridManager.IsValidMove(startPosition,endPosition);
     
     if (isValidMove == ValidMove.InvalidOutOfBoundries)
     {
