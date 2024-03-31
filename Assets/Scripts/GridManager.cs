@@ -53,6 +53,13 @@ public class GridManager : MonoBehaviour {
                 return ValidMove.InvalidOutOfBoundries;
             }
 
+         
+            foreach(KeyValuePair<Vector2, Ghost> entry in ghostManager.ghosts) {
+                if (entry.Key == playerPosition){
+                    return ValidMove.InvalidGhost;
+                }
+            }
+
 
             if (IsTileInProgress(playerPosition)){
                 return ValidMove.InvalidBlueInProgress;

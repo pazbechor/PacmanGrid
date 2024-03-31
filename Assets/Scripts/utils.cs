@@ -3,5 +3,6 @@ public enum ValidMove
   Valid,
   ValidStepCompleted,
   InvalidOutOfBoundries,
-  InvalidBlueInProgress
+  InvalidBlueInProgress,
+  InvalidGhost
 }

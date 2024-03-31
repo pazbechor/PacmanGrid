@@ -55,7 +55,8 @@ public class Pacman : MonoBehaviour {
       yield break;  
     }
 
-    if (isValidMove == ValidMove.InvalidBlueInProgress)
+
+    if (isValidMove == ValidMove.InvalidBlueInProgress || isValidMove == ValidMove.InvalidGhost)
     {
       lifeCount--;
       if (lifeCount == 0){
