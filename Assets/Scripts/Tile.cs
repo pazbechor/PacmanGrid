@@ -7,6 +7,7 @@ public class Tile : MonoBehaviour {
     public SpriteRenderer m_SpriteRenderer;
     public Sprite blue;
     public Sprite green;
+    public bool needToFill;
 
     public bool visited;
 
@@ -17,6 +18,7 @@ public class Tile : MonoBehaviour {
     public bool inProgress;
 
     public void Init(bool isOnInit) {
+        needToFill = true;
         m_SpriteRenderer = GetComponent<SpriteRenderer>();
         if (isOnInit) {
             m_SpriteRenderer.sprite = blue;
