@@ -11,6 +11,7 @@ public class Pacman : MonoBehaviour {
   [SerializeField] private float gridSize = 1f;
 
 Vector2 pDirection;
+  private bool shouldRepeatMove = false;
   private bool isMoving = false;
   System.Func<KeyCode, bool> lastKey;
   private int lifeCount = 3;
@@ -83,13 +84,18 @@ Vector2 pDirection;
       }
     }
 
-    if (isRepeated){
-      if (gridManager.IsBlueBox(endPosition)){
-        // transform.position = Vector2.Lerp(startPosition, endPosition, percent);
-        yield break;
-      }
+    if (isRepeated && !shouldRepeatMove){
+      yield break;
     }
+    if (isRepeated && gridManager.IsBlueBox(endPosition)){
+        shouldRepeatMove = false;
+        transform.position = endPosition;
+        yield break;
+    }
+    if (!isRepeated){
+      shouldRepeatMove = true;
 
+    }
     // Record that we're moving so we don't accept more input.
     isMoving = true;
 
