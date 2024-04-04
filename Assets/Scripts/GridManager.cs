@@ -1,8 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 using UnityEngine.SocialPlatforms.Impl;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+
+
+
+
+
 
 public class GridManager : MonoBehaviour {
     private int width = 40;
@@ -13,7 +22,9 @@ public class GridManager : MonoBehaviour {
 
     public Dictionary<Vector2, Tile> tiles;
 
-    public float score = 0;
+    public int score = 0;
+    public int lifes = 3;
+
 
     public int currentTilesOn = 0;
 
@@ -21,12 +32,24 @@ public class GridManager : MonoBehaviour {
     public int GetWidth(){return width;}
 
     public GhostManager ghostManager;
+    public Text scoreAsText;
+    public Text lifesAsText;
 
     void Start() {
         ghostManager = GameObject.FindGameObjectWithTag("GhostManager").GetComponent<GhostManager>();
         GenerateGrid();
     }
 
+    void decreaseLife(){
+        lifes--;
+        if (lifes == 0){
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            return;
+        }
+        lifesAsText.text = "Lifes: " + lifes.ToString();
+        
+
+    }
     void GenerateGrid() {
         tiles = new Dictionary<Vector2, Tile>();
         for (int x = 0; x < width; x++) {
@@ -44,6 +67,9 @@ public class GridManager : MonoBehaviour {
     }
 
 
+      public bool IsBlueBox(Vector2 currentPosition){
+        return tiles[currentPosition].isBlue;
+      }
       public ValidMove IsValidMove(Vector2 previousPosition, Vector2 playerPosition) {
             if (playerPosition.x < 0 ||
                 playerPosition.x > width -1 || 
@@ -56,18 +82,21 @@ public class GridManager : MonoBehaviour {
          
             foreach(KeyValuePair<Vector2, Ghost> entry in ghostManager.ghosts) {
                 if (entry.Key == playerPosition){
+                    decreaseLife();
                     return ValidMove.InvalidGhost;
                 }
             }
 
 
             if (IsTileInProgress(playerPosition)){
+                decreaseLife();
                 return ValidMove.InvalidBlueInProgress;
             }
 
 
             if (IsCompletedMove(previousPosition, playerPosition)){
                 HandleCloseArea();
+                scoreAsText.text = "Score: " + score.ToString() + "%";
                 return ValidMove.ValidStepCompleted;
             }
 
@@ -109,18 +138,26 @@ public class GridManager : MonoBehaviour {
             getTilesSomethingRecursive(curGhostX, curGhostY, "");
         }
 
+        int blueTiles = 0;
         foreach(KeyValuePair<Vector2, Tile> entry in tiles)
         {
             entry.Value.inProgress = false;
             entry.Value.visited = false;
             
             if (!entry.Value.needToFill){
+                if (entry.Value.isBlue){
+                    blueTiles +=1;
+                }
                 entry.Value.needToFill = true;
                 continue;
             }
             entry.Value.isBlue = true;
+            blueTiles +=1;
             entry.Value.m_SpriteRenderer.sprite = entry.Value.blue;
         }
+
+        int frame = (2*width) + (2*height) - 4;
+        score = (int)Math.Round(100*(float)((float)(blueTiles - frame) / (tiles.Count - frame)));
     }
 
 
