@@ -89,13 +89,21 @@ Vector2 pDirection;
     }
     if (isRepeated && gridManager.IsBlueBox(endPosition)){
         shouldRepeatMove = false;
-        transform.position = endPosition;
+        StartCoroutine(movePlayerSmoothly(startPosition, endPosition));
         yield break;
     }
     if (!isRepeated){
       shouldRepeatMove = true;
 
+
     }
+    
+    StartCoroutine(movePlayerSmoothly(startPosition, endPosition));
+    
+
+  }
+
+  private IEnumerator movePlayerSmoothly(Vector2 startPosition, Vector2 endPosition){
     // Record that we're moving so we don't accept more input.
     isMoving = true;
 
@@ -119,7 +127,7 @@ Vector2 pDirection;
     // We're no longer moving so we can accept another move input.
     isMoving = false;
   }
-
+  
   private void handleRestart(){
     transform.position = new Vector2(0,0);
     gridManager.RestartInProgresBoard();
