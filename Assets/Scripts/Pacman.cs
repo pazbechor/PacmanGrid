@@ -14,7 +14,6 @@ Vector2 pDirection;
   private bool shouldRepeatMove = false;
   private bool isMoving = false;
   System.Func<KeyCode, bool> lastKey;
-  private int lifeCount = 3;
 
   private void Start(){
     gridManager = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
@@ -67,21 +66,12 @@ Vector2 pDirection;
     }
 
 
+    // ToDo: should be OnCollision instead - Pacman VS Tile in progress
     if (isValidMove == ValidMove.InvalidBlueInProgress || isValidMove == ValidMove.InvalidGhost)
     {
-      lifeCount--;
-      if (lifeCount == 0){
-        // handleGameOver();
-        yield break;
-      }
-      else 
-      {
         // Set player to 0,0
         handleRestart(); 
-        startPosition = transform.position;
-        endPosition = transform.position;
-        // yield return null;
-      }
+        yield break;
     }
 
     if (isRepeated && !shouldRepeatMove){
@@ -132,5 +122,16 @@ Vector2 pDirection;
     transform.position = new Vector2(0,0);
     gridManager.RestartInProgresBoard();
   }
+
+  private void OnCollisionEnter2D(Collision2D other) {  
+        // Check if the collision involves the Pacman object
+        // if (collision.gameObject.CompareTag("Ghost"))
+        // { 
+            // Perform actions specific to the collision with Pacman
+            Debug.Log("Collision with Ghost detected!");
+            
+            // For example, decrease Pacman's health, restart the game, etc.
+        // }
+    }
 
 }

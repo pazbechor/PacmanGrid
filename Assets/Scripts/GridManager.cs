@@ -1,16 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-
-
-
-
-
+using Random=UnityEngine.Random;
 
 
 public class GridManager : MonoBehaviour {
@@ -31,12 +24,17 @@ public class GridManager : MonoBehaviour {
     public int GetHeight(){return height;}
     public int GetWidth(){return width;}
 
-    public GhostManager ghostManager;
+    // public GhostManager ghostManager;
+    Dictionary<int, Ghost> ghosts;
+    public Ghost ghostPrefab;
+
+    int ghostsAmount = 1;
     public Text scoreAsText;
     public Text lifesAsText;
 
+    public int GetLifes() {return lifes;}
     void Start() {
-        ghostManager = GameObject.FindGameObjectWithTag("GhostManager").GetComponent<GhostManager>();
+        // ghostManager = GameObject.FindGameObjectWithTag("GhostManager").GetComponent<GhostManager>();
         GenerateGrid();
     }
 
@@ -51,6 +49,8 @@ public class GridManager : MonoBehaviour {
 
     }
     void GenerateGrid() {
+        
+        // Generate tiles
         tiles = new Dictionary<Vector2, Tile>();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -63,6 +63,20 @@ public class GridManager : MonoBehaviour {
                 tiles[new Vector2(x, y)] = spawnedTile;
             }
         }
+
+        // Generate ghosts: 
+        ghosts = new Dictionary<int, Ghost>();
+        
+        for (int i = 0; i < ghostsAmount; i++) {
+            
+            int x = Random.Range(1, width-1);
+            int y = Random.Range(1, height-1);
+            var spawnedGhost = Instantiate(ghostPrefab, new Vector3(x, y), Quaternion.identity);
+            ghosts[i] = spawnedGhost;
+        }
+
+
+
         cam.transform.position = new Vector3((float)width/2 -0.5f, (float)height / 2 - 0.5f,-10);
     }
 
@@ -80,16 +94,20 @@ public class GridManager : MonoBehaviour {
             }
 
          
-            foreach(KeyValuePair<Vector2, Ghost> entry in ghostManager.ghosts) {
-                if (entry.Key == playerPosition){
-                    decreaseLife();
+            // ToDo: Delete. should be OnCollision instead - Ghost VS Pacman
+            foreach(KeyValuePair<int, Ghost> entry in ghosts) {
+                if (new Vector2((int)entry.Value.transform.position.x, (int)entry.Value.transform.position.y) == 
+                        new Vector2((int)playerPosition.x, (int)playerPosition.y)
+                    ){
+                    // decreaseLife();
                     return ValidMove.InvalidGhost;
                 }
             }
 
 
+            // ToDo: Delete. should be OnCollision instead - Pacman VS Tile in progress
             if (IsTileInProgress(playerPosition)){
-                decreaseLife();
+                // decreaseLife();
                 return ValidMove.InvalidBlueInProgress;
             }
 
@@ -132,9 +150,9 @@ public class GridManager : MonoBehaviour {
 
 
     private void HandleCloseArea(){
-        foreach(KeyValuePair<Vector2, Ghost> entry in ghostManager.ghosts) {
-            float curGhostX = entry.Key.x;
-            float curGhostY = entry.Key.y;
+        foreach(KeyValuePair<int, Ghost> entry in ghosts) {
+            float curGhostX = entry.Value.transform.position.x;
+            float curGhostY =  entry.Value.transform.position.y;
             getTilesSomethingRecursive(curGhostX, curGhostY, "");
         }
 
@@ -162,7 +180,7 @@ public class GridManager : MonoBehaviour {
 
 
     void getTilesSomethingRecursive(float curGhostX, float curGhostY, string forbiddenDirection) {
-        Vector2 currentPos = new Vector2(curGhostX, curGhostY);
+        Vector2 currentPos = new Vector2((int)curGhostX, (int) curGhostY);
         if (tiles[currentPos].visited) { 
             return;
         }

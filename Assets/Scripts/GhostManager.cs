@@ -18,17 +18,7 @@ public class GhostManager : MonoBehaviour
     public GridManager gridManager;
     // Start is called before the first frame update
     void Start()
-    {
-        gridManager = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
-        ghosts = new Dictionary<Vector2, Ghost>();
-        for (int i = 0; i < amount; i++) {
-            
-            int x = Random.Range(1, gridManager.GetWidth()-1);
-            int y = Random.Range(1, gridManager.GetHeight()-1);
-            var spawnedTile = Instantiate(ghostPrefab, new Vector3(x, y), Quaternion.identity);
-            ghosts[new Vector2(x, y)] = spawnedTile;
-        }
-    }
+    {}
 
     // Update is called once per frame
     private void Update() {}

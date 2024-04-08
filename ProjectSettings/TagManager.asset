@@ -6,6 +6,8 @@ TagManager:
   tags:
   - GridManager
   - GhostManager
+  - Ghost
+  - Pacman
   layers:
   - Default
   - TransparentFX

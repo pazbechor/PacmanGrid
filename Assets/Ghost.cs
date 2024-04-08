@@ -1,16 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Ghost : MonoBehaviour
 {
     private bool isMoving = false;
     public float moveSpeed = 5f;
-
-    // Start is called before the first frame update
+    Vector2 direction;
+    public GridManager gridManager;
     void Start()
     {
-        
+        gridManager = GameObject.FindGameObjectWithTag("GridManager").GetComponent<GridManager>();
+        direction = GetRandomDirection();
     }
 
     // Update is called once per frame
@@ -20,7 +23,7 @@ public class Ghost : MonoBehaviour
     }
 
 
-    private Vector2 GetRandomDirection()
+    private static Vector2 GetRandomDirection()
     {
         int randomIndex = Random.Range(0, 4);
         // Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
@@ -35,28 +38,59 @@ public class Ghost : MonoBehaviour
     // Start random continuous movement
     public void StartRandomContinuousMovement()
     {
-        if (!isMoving)
+        if (isMoving)
         {
-            Vector2 randomDirection = GetRandomDirection();
-            StartCoroutine(MoveContinuously(randomDirection));
-            Vector2 randomDirection2 = GetRandomDirection();
-            // while (randomDirection2 == randomDirection){
-                // randomDirection2 = GetRandomDirection();
-            // }
-            // StartCoroutine(MoveContinuously(randomDirection2));
+            StartCoroutine(MoveContinuously());
+        }
+        else
+        {
+            direction = GetDifferentDirection(direction);
+            StartCoroutine(MoveContinuously());
         }
     }
 
     // Coroutine to move the ghost continuously in a specified direction
-    private IEnumerator MoveContinuously(Vector2 direction)
+    private IEnumerator MoveContinuously()
     {
         isMoving = true;
-        while (true)
-        {
-            Vector2 movement = new Vector2(direction.x, direction.y) * moveSpeed * Time.deltaTime;
-            transform.Translate(movement);
+        Vector2 movement = new Vector2(direction.x, direction.y) * moveSpeed * Time.deltaTime;
+        Vector2 startPosition = transform.position;
+        // adding twice direction as frame is always blue
+        Vector2 endPosition = startPosition + direction + direction;
+
+        
+        // 1 - Touching bounderies
+        ValidMove isValid = gridManager.IsValidMove(
+            new Vector2((int)startPosition.x, (int)startPosition.y),
+            new Vector2((int)endPosition.x, (int)endPosition.y));
+        if (isValid == ValidMove.InvalidOutOfBoundries){
+            isMoving = false;
             yield return null;
         }
+
+        // We are in bounderies
+        // // 2 - Touching Blue (in progress OR blue no)
+        endPosition = startPosition + direction;
+        Vector2 temp = new Vector2((int)endPosition.x, (int)endPosition.y);
+        Tile tile = gridManager.tiles[temp];
+        if (tile.isBlue){ 
+            if (tile.inProgress){
+                // Debug.Log("In Progress");
+                isMoving = false;
+                yield return null;
+                
+                // ToDo;
+            }else{
+                // Debug.Log("Not In Progress");
+                isMoving = false;
+                yield return null;
+                // ToDo
+            }
+        }
+
+        transform.Translate(movement);
+        yield return null;
+        
     }
 
     public void StopContinuousMovement()
@@ -64,6 +98,26 @@ public class Ghost : MonoBehaviour
         isMoving = false;
     }
 
+    private void OnCollisionEnter2D(Collision2D other) 
+    {
+        // Check if the collision involves the Pacman object
+        // if (collision.gameObject.CompareTag("Pacman"))
+        // {
+            // Perform actions specific to the collision with Pacman
+            Debug.Log("Collision with Pacman detected!");
+            
+            // For example, decrease Pacman's health, restart the game, etc.
+        // }
+    }
+
+
+    private Vector2 GetDifferentDirection(Vector2 direction){
+        Vector2 tempDirection = GetRandomDirection();
+        while(tempDirection == direction){
+            tempDirection = GetRandomDirection();
+        }
+        return tempDirection;
+    }
 
 
 }
